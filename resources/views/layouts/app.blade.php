@@ -25,5 +25,8 @@
         </div>
     </body>
     
+    <script src="https://unpkg.com/vue@2.6.11/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
     @yield('script')
 </html>

@@ -14,7 +14,7 @@
             <br><br>
 
             <table class="table table-condensed">
-                <thead>
+                <thead> 
                   <tr>
                     <th>Name</th>
                     <th>Slug</th>

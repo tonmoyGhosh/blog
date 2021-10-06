@@ -1,19 +1,5 @@
 @extends('layouts.app')
 
-@section('style')
-<style>
-.trash { color:rgb(209, 91, 71); }
-.flag { color:rgb(248, 148, 6); }
-.panel-body { padding:0px; }
-.panel-footer .pagination { margin: 0; }
-.panel .glyphicon,.list-group-item .glyphicon { margin-right:5px; }
-.panel-body .radio, .checkbox { display:inline-block;margin:0px; }
-.panel-body input[type=checkbox]:checked + label { text-decoration: line-through;color: rgb(128, 144, 160); }
-.list-group-item:hover, a.list-group-item:focus {text-decoration: none;background-color: rgb(245, 245, 245);}
-.list-group { margin-bottom:0px; }
-.checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] { margin-left:0px; }
-</style>
-@stop
 
 
 @section('content')
@@ -36,37 +22,56 @@
                 
                 <label class="col-sm-3 control-label">Name:*</label>
                 <div class="col-sm-9">
-                    <input type="text" name="name" class="form-control" id="name" placeholder="Blog Name">
+                    <input type="text" v-model="name" class="form-control" id="name" placeholder="Blog Name">
                     <p id="nameMsg" style="max-height:3px;"></p>
                 </div>
+            </div>
+           
 
+            <div class="form-group">
                 <label class="col-sm-3 control-label">Slug:*</label>
                 <div class="col-sm-9">
-                    <input type="text" name="slug" class="form-control" id="slug" placeholder="Blog Slug">
+                    <input type="text" v-model="slug" class="form-control" id="slug" placeholder="Blog Slug">
                     <p id="slugMsg" style="max-height:3px;"></p>
                 </div>
-
-                <label class="col-sm-3 control-label">Category:</label>
-                <div class="col-sm-9">
-                    <input type="text" name="category" class="form-control" id="slug" placeholder="Blog Category">
-                    <p id="categoryMsg" style="max-height:3px;"></p>
-                </div>
-
-                <label class="col-sm-3 control-label">Tag:</label>
-                <div class="col-sm-9">
-                    <input type="text" name="tag" class="form-control" id="slug" placeholder="Blog Tag">
-                    <p id="tagMsg" style="max-height:3px;"></p>
-                </div>
-
-                <label class="col-sm-3 control-label">Body:</label>
-                <div class="col-sm-9">
-                    <textarea type="text" name="body" class="form-control ckeditor" id="body" placeholder="Blog Body"></textarea>
-                    <p id="bodyMsg" style="max-height:3px;"></p>
-                </div>
-
             </div>
 
-            <input type="text" class="form-control" placeholder="Add Todo List" v-model="todoValue" v-on:keyup.enter="setTodoList">
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Category</label>
+                <div class="col-sm-9">
+                    <input type="text" v-model="category" class="form-control" id="category" placeholder="Blog Category">
+                    <p id="categoryMsg" style="max-height:3px;"></p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Tag:</label>
+                <div class="col-sm-9">
+                    <input type="text" v-model="tag" class="form-control" id="tag" placeholder="Blog Tag">
+                    <p id="tagMsg" style="max-height:3px;"></p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Banner:</label>
+                <div class="col-sm-9">
+                    <input type="text" v-model="banner" class="form-control" id="banner" placeholder="Blog Banner">
+                    <p id="bannerMsg" style="max-height:3px;"></p>
+                </div>
+            </div>
+
+            
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Body:</label>
+                <div class="col-sm-9">
+                    <textarea type="text" v-model="body" class="form-control ckeditor" id="body" placeholder="Blog Body"></textarea>
+                </div>
+            </div>
+
+            <button class="btn btn-sucess" v-on:click="addBlog">Submit</button>
+            
+            <!--   <input type="text" class="form-control" placeholder="Add Todo List" v-model="todoValue" v-on:keyup.enter="setTodoList"> -->
             
             
         
@@ -78,15 +83,66 @@
 
 @section('script')
 
-    <script src="https://unpkg.com/vue@2.6.11/dist/vue.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="//cdn.ckeditor.com/4.14.1/standard/ckeditor.js"></script>
 
     <script>
 
-        $(document).ready(function() 
-        {
-           $('.ckeditor').ckeditor();
+        new Vue({
+            el: '#app',
+            data: {
+                name: '',
+                slug: '',
+                category: '',
+                tag: '',
+                banner: '',
+                body: ''
+            },
+            
+            methods: 
+            {
+                addBlog: function ()
+                {   
+                    let vm = this;
+                    token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                    axios.post('insert', 
+                        {
+                            name: vm.name,
+                            slug: vm.slug,
+                            category: vm.category,
+                            tag: vm.tag,
+                            banner: vm.banner,
+                            body: vm.body,
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'X-Requested-With': 'XMLHttpRequest',
+                        }
+                        }).then(function (_response)
+                        {
+                            console.log(_response.data.errors.slug[0]);
+                            
+                            if(_response.data.errors.name[0]) 
+                            {   
+                                alert(_response.data.errors.name[0]);
+                                return false;
+                            }
+                            else if(_response.data.errors.slug[0]) 
+                            {   
+                                alert(_response.data.errors.slug[0]);
+                                return false;
+                            }
+                            else
+                            {
+
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                }
+               
+            }
         });
 
     </script>
