@@ -29,7 +29,7 @@
            
 
             <div class="form-group">
-                <label class="col-sm-3 control-label">Slug:*</label>
+                <label class="col-sm-3 control-label">Slug:</label>
                 <div class="col-sm-9">
                     <input type="text" v-model="slug" class="form-control" id="slug" placeholder="Blog Slug">
                     <p id="slugMsg" style="max-height:3px;"></p>
@@ -65,16 +65,12 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">Body:</label>
                 <div class="col-sm-9">
-                    <textarea type="text" v-model="body" class="form-control ckeditor" id="body" placeholder="Blog Body"></textarea>
+                    <textarea type="text" v-model="body" class="form-control" id="body" placeholder="Blog Body"></textarea>
                 </div>
             </div>
 
             <button class="btn btn-sucess" v-on:click="addBlog">Submit</button>
             
-            <!--   <input type="text" class="form-control" placeholder="Add Todo List" v-model="todoValue" v-on:keyup.enter="setTodoList"> -->
-            
-            
-        
         </div>
     
     </div>
@@ -82,8 +78,6 @@
 @stop
 
 @section('script')
-
-    <script src="//cdn.ckeditor.com/4.14.1/standard/ckeditor.js"></script>
 
     <script>
 
@@ -120,21 +114,22 @@
                         }
                         }).then(function (_response)
                         {
-                            console.log(_response.data.errors.slug[0]);
-                            
-                            if(_response.data.errors.name[0]) 
+                            if(_response.data.responseTitle == 'error') 
                             {   
-                                alert(_response.data.errors.name[0]);
-                                return false;
-                            }
-                            else if(_response.data.errors.slug[0]) 
-                            {   
-                                alert(_response.data.errors.slug[0]);
+                                alert(_response.data.responseText);
                                 return false;
                             }
                             else
-                            {
+                            {   
+                                vm.name = '';
+                                vm.slug = '';
+                                vm.category = '';
+                                vm.tag = '';
+                                vm.banner = '';
+                                vm.body = '';
 
+                                alert('Blog Inserted Successfully!');
+                                return false;
                             }
                         })
                         .catch(function (error) {

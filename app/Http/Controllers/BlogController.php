@@ -32,23 +32,35 @@ class BlogController extends Controller
         { 
             $rules = array(
                         'name' => 'required',
-                        'slug' => 'required'
                     );
 
             $attributeNames = array(
-                'name' => 'Name',
-                'slug' => 'Slug'
-            );
+                    'name' => 'Name'
+                );
 
-            $validator = Validator::make ( $request->all(), $rules);
+            $validator = Validator::make($request->all(), $rules);
             $validator->setAttributeNames($attributeNames);
 
             if($validator->fails())
-            {
-                return response::json(array('errors' => $validator->getMessageBag()->toArray()));
+            {   
+                $notification = array(
+                    'responseTitle'  => 'error',
+                    'responseText'   => 'Name field is required'
+                );
+
+                return response()->json($notification);
             }
             else
             {   
+                $blog               = new Blog;
+                $blog->name         = $request->name;
+                $blog->slug         = $request->slug;
+                $blog->category     = $request->category;
+                $blog->tag          = $request->tag;
+                $blog->banner       = $request->banner;
+                $blog->body         = $request->body;
+                $blog->save();
+
                 DB::commit();
 
                 $notification = array(
@@ -74,6 +86,5 @@ class BlogController extends Controller
             return response()->json($notification);
         }
 
-        
     }
 }
