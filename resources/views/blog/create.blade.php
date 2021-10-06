@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
-
-
 @section('content')
 
     <br><br>
@@ -111,7 +108,7 @@
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': token,
                                 'X-Requested-With': 'XMLHttpRequest',
-                        }
+                            }
                         }).then(function (_response)
                         {
                             if(_response.data.responseTitle == 'error') 
@@ -128,7 +125,7 @@
                                 vm.banner = '';
                                 vm.body = '';
 
-                                alert('Blog Inserted Successfully!');
+                                alert(_response.data.responseText);
                                 return false;
                             }
                         })

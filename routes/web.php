@@ -15,13 +15,14 @@ use App\Http\Controllers\BlogController;
 */
 
 // Blog Module Routes
-Route::get('/',          [BlogController::class, 'index']);
-Route::get('list/',      [BlogController::class, 'index']);
-Route::get('create/',    [BlogController::class, 'create']);
-Route::post('insert/',   [BlogController::class, 'insert']);
-Route::get('edit/{id}',  [BlogController::class, 'edit']);
-Route::post('update/',   [BlogController::class, 'update']);
-Route::post('delete/',   [BlogController::class, 'delete']);
+Route::get('/',             [BlogController::class, 'index']);
+Route::get('list/',         [BlogController::class, 'index']);
+Route::get('create/',       [BlogController::class, 'create']);
+Route::post('insert/',      [BlogController::class, 'insert']);
+Route::get('edit/{id}',     [BlogController::class, 'edit']);
+Route::get('getData/{id}',  [BlogController::class, 'getData']);
+Route::post('update/',      [BlogController::class, 'update']);
+Route::post('delete/',      [BlogController::class, 'delete']);
 
 
 

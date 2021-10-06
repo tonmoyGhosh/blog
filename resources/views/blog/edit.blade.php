@@ -1,21 +1,4 @@
 @extends('layouts.app')
-
-@section('style')
-<style>
-.trash { color:rgb(209, 91, 71); }
-.flag { color:rgb(248, 148, 6); }
-.panel-body { padding:0px; }
-.panel-footer .pagination { margin: 0; }
-.panel .glyphicon,.list-group-item .glyphicon { margin-right:5px; }
-.panel-body .radio, .checkbox { display:inline-block;margin:0px; }
-.panel-body input[type=checkbox]:checked + label { text-decoration: line-through;color: rgb(128, 144, 160); }
-.list-group-item:hover, a.list-group-item:focus {text-decoration: none;background-color: rgb(245, 245, 245);}
-.list-group { margin-bottom:0px; }
-.checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] { margin-left:0px; }
-</style>
-@stop
-
-
 @section('content')
 
     <br><br>
@@ -25,44 +8,66 @@
 
         <div class="panel-body col-sm-12">
             
-            <h3>Add Blog</h3>
+            <h3>Edit Blog</h3>
             <hr>
 
-            <input type="text" class="form-control" placeholder="Add Todo List" v-model="todoValue" v-on:keyup.enter="setTodoList">
-            
-            <ul class="list-group" v-if="todoList.length != 0">
-                
-                <li class="list-group-item" v-for="(record, index) in todoList" v-show="sectionOne">
-                    
-                    <div class="checkbox"  v-if="record.id != editTodoId">
-                        <input type="checkbox" v-bind:id="record.id" class="checkbox checkbox-circle" v-on:click="deleteAction(record.id, record.name)"/>
-                        <label v-on:click="editAction(record.id, record.name)">
-                            @{{ record.name }}
-                        </label>
-                    </div>
-                    
-                    <input type="text" class="form-control" v-model="editTodoValue" v-if="record.id == editTodoId" v-on:keyup.enter="setUpdateTodoList">
-                
-                </li>
+            <a href="{{url('list')}}">Blog List</a>
+            <br><br>
 
-                <li class="list-group-item" v-show="sectionTwo">
-                    <div class="checkbox">
-                        <input id="checkbox" type="checkbox" class="checkbox checkbox-circle" checked=""/>
-                        <label>@{{ deleteValue }}</label>
-                    </div>
-                </li>
+            <input type="hidden" name="id" value="{{ $id }}" id="blogId">
 
-                <li class="list-group-item">
-                    <div class="checkbox">
-                        <a href="javascript:void(0)" v-on:click="allButton()">All</a>
-                        <a href="javascript:void(0)" v-on:click="actionButton()" style="padding-left: 180px;">Active</a>
-                        <a href="javascript:void(0)" v-on:click="completeButton()" style="padding-left: 20px;">Completed</a>
-                        <a href="javascript:void(0)" v-on:click="clearCompleteButton()" style="padding-left: 170px;">Clear Completed</a>
-                    </div>
-                </li>
+            <div class="form-group">
+                
+                <label class="col-sm-3 control-label">Name:*</label>
+                <div class="col-sm-9">
+                    <input type="text" v-model="name" class="form-control" id="name" placeholder="Blog Name">
+                    <p id="nameMsg" style="max-height:3px;"></p>
+                </div>
+            </div>
+           
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Slug:</label>
+                <div class="col-sm-9">
+                    <input type="text" v-model="slug" class="form-control" id="slug" placeholder="Blog Slug">
+                    <p id="slugMsg" style="max-height:3px;"></p>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Category</label>
+                <div class="col-sm-9">
+                    <input type="text" v-model="category" class="form-control" id="category" placeholder="Blog Category">
+                    <p id="categoryMsg" style="max-height:3px;"></p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Tag:</label>
+                <div class="col-sm-9">
+                    <input type="text" v-model="tag" class="form-control" id="tag" placeholder="Blog Tag">
+                    <p id="tagMsg" style="max-height:3px;"></p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Banner:</label>
+                <div class="col-sm-9">
+                    <input type="text" v-model="banner" class="form-control" id="banner" placeholder="Blog Banner">
+                    <p id="bannerMsg" style="max-height:3px;"></p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Body:</label>
+                <div class="col-sm-9">
+                    <textarea type="text" v-model="body" class="form-control" id="body" placeholder="Blog Body"></textarea>
+                </div>
+            </div>
+
+            <button class="btn btn-sucess" v-on:click="updateBlog">Update</button>
             
-            </ul>
-        
         </div>
     
     </div>
@@ -71,191 +76,85 @@
 
 @section('script')
 
-    <script src="https://unpkg.com/vue@2.6.11/dist/vue.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
     <script>
+
         new Vue({
             el: '#app',
             data: {
-                todoValue: '',
-                editTodoValue: '',
-                editTodoId: 0,
-                deleteTodoValue: '',
-                deleteTodoId: 0,
-                todoList: [],
-                sectionOne: true,
-                sectionTwo: false,
-                deleteValue: '',
-                activeOn: false,
-                deleteId: 0,
-                existData: false,
-                tempId: 0,
+                name: '',
+                slug: '',
+                category: '',
+                tag: '',
+                banner: '',
+                body: ''
             },
+
             created: function () {
                 
                 let vm = this;
-                axios.get("api/todoList")
-                    .then(function(response) {
-                       
-                        if(response.data.status == true)
-                            vm.todoList = response.data.data;
-                           
-                        if(vm.todoList.length != 0)
-                            vm.existData = true;
-                        else vm.existData = false;
+                blogId = document.getElementById("blogId").value;
+
+                axios.get("../getData/"+blogId)
+                    .then(function(_response) {
+                        
+                        if(_response.data.responseTitle == "success")
+                        {
+                            vm.name = _response.data.responseText.name;
+                            vm.slug = _response.data.responseText.slug;
+                            vm.category = _response.data.responseText.category;
+                            vm.tag = _response.data.responseText.tag;
+                            vm.banner = _response.data.responseText.banner;
+                            vm.body = _response.data.responseText.body;
+                        }
                     })
                     .catch(function(err) {
                        console.log(err);
                     })
             },
-            methods: {
-                setTodoList: function ()
-                {   
-                    let vm = this,
-                        lastRecord,
-                        lastId,
-                        setArr = [];
-                        
-                    if(vm.todoList.length == 0) 
-                        lastId = 1;
-                    else 
-                    {   
-                        lastRecord = vm.todoList[vm.todoList.length - 1];
-                        lastId = lastRecord.id + 1;
-                    }
-                    setArr['id'] = lastId;
-                    setArr['name'] = vm.todoValue;
-                    vm.todoList.push(setArr);
-                    vm.todoValue = '';
-                },
-                editAction: function (id, name)
+            
+            methods: 
+            {
+                updateBlog: function ()
                 {   
                     let vm = this;
-                    
-                    vm.editTodoValue = name;
-                    vm.editTodoId = id;
-                },
-                setUpdateTodoList: function () 
-                {   
-                    let vm = this;
-                    for(i=0; i<vm.todoList.length; i++)
-                    {
-                        if(vm.editTodoId == vm.todoList[i].id && vm.editTodoValue != vm.todoList[i].name)
-                            vm.todoList[i].name = vm.editTodoValue;
-                    }
-                    vm.editTodoValue = '';
-                    vm.editTodoId = 0;
-                },
-                deleteAction: function (id, name) 
-                {
-                    let vm = this,
-                        checkVal;
-                    if(vm.tempId != 0)
-                        document.getElementById(vm.tempId).checked = false;
-                    vm.deleteTodoId = id;
-                    checkVal = document.getElementById(vm.deleteTodoId).checked;
-                    if(checkVal == true)
-                        vm.deleteTodoValue = name;
-                    else 
-                    {
-                        vm.deleteTodoValue = '';
-                        vm.deleteTodoId = 0;
-                    }
-                    vm.tempId = id;
-                },
-                allButton: function () 
-                {
-                    let vm = this;
-                    vm.sectionOne = true;
-                    vm.sectionTwo = false;
-                    axios.get("api/todoList")
-                        .then(function(response) {
-                           if(response.data.status == true)
-                               vm.todoList = response.data.data;
-                        })
-                        .catch(function(err) {
-                           console.log(err);
-                        })
-                },
-                actionButton: function () 
-                {
-                    let vm = this;
-                    if(vm.deleteTodoId != 0)
-                    {
-                        for(i=0; i<vm.todoList.length; i++)
-                        {
-                            if(vm.deleteTodoId == vm.todoList[i].id && vm.deleteTodoValue == vm.todoList[i].name)
-                            {   
-                                vm.todoList.splice(i, 1);
-                                vm.deleteId = vm.deleteTodoId;
-                            }
-                        }
-                        document.getElementById(vm.deleteTodoId).checked = false;
-                    }
-                    
-                    vm.deleteValue = vm.deleteTodoValue;
-                    vm.activeOn = true;
-                    vm.editTodoValue = '';
-                    vm.deleteTodoId = 0;
-                    vm.deleteTodoValue = '';
-                    vm.deleteTodoId = 0;
-                },
-                completeButton: function ()
-                {
-                    let vm = this;
-                    if(vm.deleteValue == '')
-                    {
-                        vm.sectionOne = false;
-                        vm.sectionTwo = false;
-                    }
-                    else
-                    {
-                        vm.sectionOne = false;
-                        vm.sectionTwo = true;
-                    }
-                    if(vm.activeOn == true)
-                    {   
-                        let data = [],
-                            token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                        for(i=0; i<vm.todoList.length; i++)
+                    token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    blogId = document.getElementById("blogId").value;
+
+                    axios.post('../update', 
                         {   
-                            data[i] = {
-                                id: vm.todoList[i].id,
-                                name: vm.todoList[i].name
+                            id: blogId,
+                            name: vm.name,
+                            slug: vm.slug,
+                            category: vm.category,
+                            tag: vm.tag,
+                            banner: vm.banner,
+                            body: vm.body,
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'X-Requested-With': 'XMLHttpRequest',
                             }
-                        }
-                        if(vm.existData == false)
-                            vm.deleteId = 0;
-                        axios.post('api/todoGenerate', {
-                                data: data,
-                                deleteId: vm.deleteId,
-                                headers: { 
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': token,
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                }
-                            }).then(function (response){
-                                console.log(response);
-                            })
-                            .catch(function (error) {
-                                console.log(error);
-                            });
-                        vm.activeOn == false;
-                        vm.deleteId = 0;
-                    }
-                    else 
-                    {
-                        vm.activeOn == false;
-                        vm.allButton();
-                    }
-                },
-                clearCompleteButton: function () 
-                {
-                    this.sectionTwo = false;
+                        }).then(function (_response)
+                        {
+                            if(_response.data.responseTitle == 'error') 
+                            {   
+                                alert(_response.data.responseText);
+                                return false;
+                            }
+                            else
+                            {   
+                                alert(_response.data.responseText);
+                                return false;
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
                 }
+               
             }
         });
+
     </script>
 
 @stop
